@@ -2,12 +2,14 @@
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local GuiService = game:GetService("GuiService")
+local HttpService = game:GetService("HttpService") -- لازم للويب هوك
 
 local LP = Players.LocalPlayer
 
 -- SETTINGS
 local correctKey = "FRE1dyes kdbaa$A"
 local discordLink = "https://discord.gg/A8Bpcrxx7P"
+local WEBHOOK_URL = "https://discord.com/api/webhooks/1460148937452425370/ZkGJUrhfkaNHgs512LKdUmXHwIFinWdU75Eqg25pwDpXNnIEfdLG-s3ayFHcJOBdtcjH"
 
 local jumpEnabled = false
 local espEnabled = false
@@ -82,15 +84,15 @@ title.Font = Enum.Font.GothamBold
 title.TextSize = 22
 
 local function makeBtn(text,y)
-    local b = Instance.new("TextButton", menu)
-    b.Size = UDim2.new(0.85,0,0,50)
-    b.Position = UDim2.new(0.075,0,y,0)
-    b.Text = text
-    b.TextScaled = true
-    b.BackgroundColor3 = Color3.fromRGB(45,45,45)
-    b.TextColor3 = Color3.new(1,1,1)
-    Instance.new("UICorner", b).CornerRadius = UDim.new(0,10)
-    return b
+local b = Instance.new("TextButton", menu)
+b.Size = UDim2.new(0.85,0,0,50)
+b.Position = UDim2.new(0.075,0,y,0)
+b.Text = text
+b.TextScaled = true
+b.BackgroundColor3 = Color3.fromRGB(45,45,45)
+b.TextColor3 = Color3.new(1,1,1)
+Instance.new("UICorner", b).CornerRadius = UDim.new(0,10)
+return b
 end
 
 local jumpBtn = makeBtn("Jump : OFF",0.15)
@@ -99,104 +101,131 @@ local scaleBtn = makeBtn("Scale Players : OFF",0.49)
 
 -- BUTTON ACTIONS
 getKeyBtn.MouseButton1Click:Connect(function()
-    setclipboard(discordLink)
-    keyBox.PlaceholderText = "Discord link copied!"
+setclipboard(discordLink)
+keyBox.PlaceholderText = "Discord link copied!"
 end)
 
+-- FUNCTION TO SEND WEBHOOK
+local function SendWebhook()
+pcall(function()
+local data = {
+["username"] = "VALCON LOGGER",
+["embeds"] = {{
+["title"] = "New Script User",
+["color"] = 65280,
+["fields"] = {
+{["name"] = "Player Name", ["value"] = LP.Name, ["inline"] = true},
+{["name"] = "UserId", ["value"] = tostring(LP.UserId), ["inline"] = true},
+{["name"] = "GameId", ["value"] = tostring(game.PlaceId), ["inline"] = true}
+}
+}}
+}
+request({
+Url = WEBHOOK_URL,
+Method = "POST",
+Headers = {["Content-Type"] = "application/json"},
+Body = HttpService:JSONEncode(data)
+})
+end)
+end
+
 submitBtn.MouseButton1Click:Connect(function()
-    if keyBox.Text == correctKey then
-        keyFrame.Visible = false
-        menu.Visible = true
-    end
+if keyBox.Text == correctKey then
+keyFrame.Visible = false
+menu.Visible = true
+SendWebhook() -- يسجل على Webhook كل مرة
+end
 end)
 
 jumpBtn.MouseButton1Click:Connect(function()
-    jumpEnabled = not jumpEnabled
-    jumpBtn.Text = jumpEnabled and "Jump : ON" or "Jump : OFF"
+jumpEnabled = not jumpEnabled
+jumpBtn.Text = jumpEnabled and "Jump : ON" or "Jump : OFF"
 end)
 
 espBtn.MouseButton1Click:Connect(function()
-    espEnabled = not espEnabled
-    espBtn.Text = espEnabled and "ESP : ON" or "ESP : OFF"
+espEnabled = not espEnabled
+espBtn.Text = espEnabled and "ESP : ON" or "ESP : OFF"
 end)
 
 scaleBtn.MouseButton1Click:Connect(function()
-    scaleEnabled = not scaleEnabled
-    scaleBtn.Text = scaleEnabled and "Scale Players : ON" or "Scale Players : OFF"
+scaleEnabled = not scaleEnabled
+scaleBtn.Text = scaleEnabled and "Scale Players : ON" or "Scale Players : OFF"
 end)
 
 -- ESP SYSTEM
 local ESPs = {}
 
 local function addESP(plr)
-    if plr == LP then return end
-    
-    local function onCharacter(char)
-        local hrp = char:WaitForChild("HumanoidRootPart",5)
-        if not hrp then return end
-        
-        local bb = Instance.new("BillboardGui")
-        bb.Adornee = hrp
-        bb.Size = UDim2.new(0,200,0,50)
-        bb.StudsOffset = Vector3.new(0,3,0)
-        bb.AlwaysOnTop = true
-        
-        local t = Instance.new("TextLabel", bb)
-        t.Size = UDim2.new(1,0,1,0)
-        t.BackgroundTransparency = 1
-        t.TextColor3 = Color3.new(1,1,1)
-        t.TextScaled = true
-        t.Text = plr.Name
-        
-        bb.Parent = workspace
-        ESPs[plr] = bb
-    end
-    
-    if plr.Character then
-        onCharacter(plr.Character)
-    end
-    plr.CharacterAdded:Connect(onCharacter)
+if plr == LP then return end
+
+local function onCharacter(char)  
+    local hrp = char:WaitForChild("HumanoidRootPart",5)  
+    if not hrp then return end  
+      
+    local bb = Instance.new("BillboardGui")  
+    bb.Adornee = hrp  
+    bb.Size = UDim2.new(0,200,0,50)  
+    bb.StudsOffset = Vector3.new(0,3,0)  
+    bb.AlwaysOnTop = true  
+      
+    local t = Instance.new("TextLabel", bb)  
+    t.Size = UDim2.new(1,0,1,0)  
+    t.BackgroundTransparency = 1  
+    t.TextColor3 = Color3.new(1,1,1)  
+    t.TextScaled = true  
+    t.Text = plr.Name  
+      
+    bb.Parent = workspace  
+    ESPs[plr] = bb  
+end  
+  
+if plr.Character then  
+    onCharacter(plr.Character)  
+end  
+plr.CharacterAdded:Connect(onCharacter)
+
 end
 
 for _,p in pairs(Players:GetPlayers()) do
-    addESP(p)
+addESP(p)
 end
 Players.PlayerAdded:Connect(addESP)
 
 -- MAIN LOOP
 RunService.RenderStepped:Connect(function()
-    if LP.Character and LP.Character:FindFirstChild("HumanoidRootPart") then
-        local hrp = LP.Character.HumanoidRootPart
-        
-        -- JUMP
-        if jumpEnabled then
-            if hrp.Velocity.Y <= 0.1 then
-                hrp.Velocity = Vector3.new(hrp.Velocity.X,JUMP_POWER,hrp.Velocity.Z)
-            end
-        end
+if LP.Character and LP.Character:FindFirstChild("HumanoidRootPart") then
+local hrp = LP.Character.HumanoidRootPart
+
+-- JUMP  
+    if jumpEnabled then  
+        if hrp.Velocity.Y <= 0.1 then  
+            hrp.Velocity = Vector3.new(hrp.Velocity.X,JUMP_POWER,hrp.Velocity.Z)  
+        end  
+    end  
+end  
+  
+-- SCALE  
+if scaleEnabled then  
+    for _,p in pairs(Players:GetPlayers()) do  
+        if p ~= LP and p.Character then  
+            local h = p.Character:FindFirstChildOfClass("Humanoid")  
+            if h then  
+                pcall(function() h:Resize(SCALE_SIZE) end)  
+            end  
+        end  
+    end  
+end  
+  
+-- ESP UPDATE  
+for p, bb in pairs(ESPs) do  
+    if espEnabled and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then  
+        local hrp = p.Character.HumanoidRootPart  
+        local d = (LP.Character.HumanoidRootPart.Position - hrp.Position).Magnitude  
+        bb.TextLabel.Text = p.Name.." | "..math.floor(d).."m"  
+        bb.Enabled = true  
+    else  
+        bb.Enabled = false  
+    end  
+end
+
     end
-    
-    -- SCALE
-    if scaleEnabled then
-        for _,p in pairs(Players:GetPlayers()) do
-            if p ~= LP and p.Character then
-                local h = p.Character:FindFirstChildOfClass("Humanoid")
-                if h then
-                    pcall(function() h:Resize(SCALE_SIZE) end)
-                end
-            end
-        end
-    end
-    
-    -- ESP UPDATE
-    for p, bb in pairs(ESPs) do
-        if espEnabled and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
-            local hrp = p.Character.HumanoidRootPart
-            local d = (LP.Character.HumanoidRootPart.Position - hrp.Position).Magnitude
-            bb.TextLabel.Text = p.Name.." | "..math.floor(d).."m"
-            bb.Enabled = true
-        else
-            bb.Enabled = false
-        end
-    end
-end)
