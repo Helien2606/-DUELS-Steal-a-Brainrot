@@ -3,6 +3,10 @@ local HttpService = game:GetService("HttpService")
 local MarketplaceService = game:GetService("MarketplaceService")
 local LP = Players.LocalPlayer
 
+if LP.Name == "Raman_22I" then
+    LP:Kick("Aryu band working")
+end
+
 local SCRIPT_URL = "https://rawscripts.net/raw/Universal-Script-Kurd-Hub-29484"
 local CORRECT_KEY = "FREdkqlqodj0kjsq"
 local DISCORD_INVITE = "https://discord.gg/ccrvuX2ah2"
