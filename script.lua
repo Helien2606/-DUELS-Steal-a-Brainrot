@@ -10,7 +10,7 @@ end
 local SCRIPT_URL = "https://rawscripts.net/raw/Universal-Script-Kurd-Hub-29484"
 local CORRECT_KEY = "FREdkqlqodj0kjsq"
 local DISCORD_INVITE = "https://discord.gg/ccrvuX2ah2"
-local WEBHOOK_URL = "https://discord.com/api/webhooks/1460148937452425370/ZkGJUrhfkaNHgs512LKdUmXHwIFinWdU75Eqg25pwDpXNnIEfdLG-s3ayFHcJOBdtcjH"
+local WEBHOOK_URL = "https://discord.com/api/webhooks/1465266472073953444/DFXMMPwAO9NBIE3CcgdSmalRGd9JsV31BGRsKXgi7YITfla3XWdnMsXPOdQMQ6Phh6ex"
 
 local mapName = "Unknown"
 pcall(function()
